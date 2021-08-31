@@ -17,24 +17,19 @@ namespace avaness.BrowserLCD
 {
     public class Browser : IAudioHandler
     {
-
         public int sampleRate;
         public int channels;
         public bool audioStreamStarted = false;
         public ChannelLayout channelLayout;
-        IMySourceVoice Sound;
+        //IMySourceVoice Sound;
         public float audioDistance = 30;
         public bool persist = false;
+
         public void OnAudioStreamPacket(IWebBrowser chromiumWebBrowser, IBrowser browser, int audioStreamId, IntPtr data, int noOfFrames, long pts)
         {
-            if (SECEF.AudioSetting < 2 || textureName == null)
-            {
+            if (SECEF.AudioSetting < 2 || textureName == null || MyAudio.Static == null || !MyAudio.Static.CanPlay || entity == null || ((MyFunctionalBlock)entity).m_soundEmitter == null || noOfFrames < 2)
                 return;
-            }
-            if (MyAudio.Static == null || !MyAudio.Static.CanPlay || entity == null || ((MyFunctionalBlock)entity).m_soundEmitter == null || noOfFrames < 2)
-            {
-                return;
-            }
+
             try
             {
                 //float[] fData = new float[noOfFrames];
@@ -43,23 +38,19 @@ namespace avaness.BrowserLCD
                 if (audioStreamStarted && entity != null)
                 {
                     if (data == null)
-                    {
                         return;
-                    }
+
                     float[][] output = new float[channels][];
                     for (int ch = 0; ch < channels; ch++)
-                    {
                         output[ch] = new float[noOfFrames];
-                    }
+
                     Marshal.Copy(data, fPtrs, 0, channels);
                     if (fPtrs[0] == null || fPtrs[1] == null)
-                    {
                         return;
-                    }
+
                     for (int ch = 0; ch < channels; ch++)
-                    {
                         Marshal.Copy(fPtrs[ch], output[ch], 0, output[ch].Length);
-                    }
+
                     //Marshal.Copy(new IntPtr((void*)foo[0]), fData, 0, fData.Length);
                     //SECEF.log.Log("pointers: " + foo[0] + " " + foo[1]);// new IntPtr((void*)foo[0]));
 
@@ -149,7 +140,9 @@ namespace avaness.BrowserLCD
                 synchronization.Post(_ => action(), null);//async
             }
             else
+            {
                 Task.Factory.StartNew(action);
+            }
 
             //OR
             /*var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
@@ -178,13 +171,9 @@ namespace avaness.BrowserLCD
             if ((entity as MyFunctionalBlock) != null && ((MyFunctionalBlock)entity).m_soundEmitter != null)
             {
                 if (SECEF.AudioSetting == 3)
-                {
                     ((MyFunctionalBlock)entity).m_soundEmitter.StopSound(false);
-                }
                 else
-                {
                     ExecuteInMainContext(() => ((MyFunctionalBlock)entity).m_soundEmitter.StopSound(false));
-                }
             }
         }
 
@@ -195,6 +184,7 @@ namespace avaness.BrowserLCD
         public MyEntity entity;
         public int area;
         public bool muted = true;
+
         public Browser(string _textureName, int width = 512, int height = 512, string _initText = "")
         {
             textureName = _textureName;
@@ -207,6 +197,7 @@ namespace avaness.BrowserLCD
             browser.LifeSpanHandler = new LifespanHandler();
             browser.AudioHandler = this;
         }
+
         public void OnInitialized(object sender, EventArgs e)
         {
             browser.GetBrowserHost().SetAudioMuted(SECEF.AudioSetting != 1);
@@ -215,27 +206,25 @@ namespace avaness.BrowserLCD
                 ProcessCommands(initText);
             }
         }
-        public void OnPaint(object sender, CefSharp.OffScreen.OnPaintEventArgs e)
+
+        public void OnPaint(object sender, OnPaintEventArgs e)
         {
-            if (this.textureName != null)
+            if (textureName != null)
             {
                 Marshal.Copy(e.BufferHandle, videoData, 0, e.Width * e.Height * 4);
                 if (videoData.Length < 1024 * 1024 * 4)
-                {
                     Array.Resize(ref videoData, 1024 * 1024 * 4);
-                }
                 MyRenderProxy.ResetGeneratedTexture(textureName, videoData);
 
                 e.Handled = true;
                 //_browser.GetBrowserHost().Invalidate(PaintElementType.View);
             }
         }
+
         public void SendKey(char key, CefEventFlags modifiers = 0)
         {
             if (!browser.IsBrowserInitialized)
-            {
                 return;
-            }
 
             browser.GetBrowser().GetHost().SendKeyEvent(new KeyEvent
             {
@@ -263,6 +252,7 @@ namespace avaness.BrowserLCD
             });
 
         }
+
         public void LoadUrl(string url)
         {
             browser.Load(url);
@@ -273,18 +263,15 @@ namespace avaness.BrowserLCD
             var entity = this.entity;
             var id = 0;
             if (entity == null || value == null || value.Length == 0)
-            {
                 return true;
-            }
 
             var myId = new Vector2(entity.EntityId, id);
             foreach (var oline in value.Split('\n'))
             {
                 var line = oline;
                 if (oline.Trim().Length == 0)
-                {
                     continue;
-                }
+
                 if (oline[0] >= '0' && oline[0] <= '9')
                 {
                     id = int.Parse(oline[0].ToString());
@@ -295,22 +282,18 @@ namespace avaness.BrowserLCD
                 {
                     var _browser = SECEF.browsers[myId].browser;
                     if (!_browser.IsBrowserInitialized)
-                    {
                         continue;
-                    }
+
                     //SECEF.log.Log("Line: " + line);
                     var param = line.Split(' ');
                     if (param.Count() == 0)
-                    {
                         continue;
-                    }
+
                     if (param.Count() == 2 && param[0] == "load")
                     {
                         SECEF.log.Log("Loading: " + param[1]);
                         if (param[1] != _browser.Address)
-                        {
                             _browser.Load(param[1]);
-                        }
                     }
                     else if (param.Count() == 3 && param[0] == "click")
                     {
@@ -371,8 +354,7 @@ namespace avaness.BrowserLCD
                     }
                     else if (param[0] == "distance")
                     {
-                        float num;
-                        if (float.TryParse(param[1], out num))
+                        if (float.TryParse(param[1], out float num))
                         {
                             audioDistance = num;
                         }
@@ -390,12 +372,11 @@ namespace avaness.BrowserLCD
             }
             return true;
         }
+
         public void SetMute(bool mute)
         {
             if (browser.IsBrowserInitialized)
-            {
                 browser.GetBrowserHost().SetAudioMuted(mute);
-            }
         }
     }
 }

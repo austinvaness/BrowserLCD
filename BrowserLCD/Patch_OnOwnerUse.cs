@@ -18,6 +18,7 @@ namespace avaness.BrowserLCD
     public static class Patch_OnOwnerUse
     {
         public static bool keyboardScreenOpen = false;
+
         public static bool Prefix(object __instance, UseActionEnum actionEnum, MyCharacter user)
         {
             if (actionEnum == UseActionEnum.Manipulate)
@@ -51,9 +52,7 @@ namespace avaness.BrowserLCD
                     if (aimedHeadPos == Vector3D.Zero)
                     {
                         if (SECEF.clickLog)
-                        {
                             MyAPIGateway.Utilities.ShowMessage("[SECEF]", "Click missed.");
-                        }
                         return false;
                     }
                     var e2 = b.entity;
@@ -67,9 +66,8 @@ namespace avaness.BrowserLCD
                     pos2 = new Vector2D(Math.Round(pos2.X), Math.Round(pos2.Y));
                     //SECEF.log.Log("aimed heid: " + aimedHeadPos + "p1 " + pos1 + " p2 " + pos2 + " bs: " + _browser.Size);
                     if (SECEF.clickLog)
-                    {
                         MyAPIGateway.Utilities.ShowMessage("[SECEF]", "Click hit: " + pos2);
-                    }
+
                     if (_browser.IsBrowserInitialized)
                     {
                         var x = (int)pos2.X;
@@ -89,6 +87,7 @@ namespace avaness.BrowserLCD
 
             return true;
         }
+
         /*public static Vector2D GetClickLocation(MyCharacter me, int width, int height)
         {
             var aimedHeadPos = GetAimedPointFromHead(me);
@@ -107,11 +106,11 @@ namespace avaness.BrowserLCD
             pos2 = new Vector2D(Math.Round(pos2.X), Math.Round(pos2.Y));
             return pos2;
         }*/
+
         private static Vector3D GetAimedPointFromHead(MyCharacter c)
         {
             MatrixD viewMatrix = c.GetViewMatrix();
-            MatrixD matrixD;
-            MatrixD.Invert(ref viewMatrix, out matrixD);
+            MatrixD.Invert(ref viewMatrix, out MatrixD matrixD);
             Vector3D forward = matrixD.Forward;
             forward.Normalize();
             Vector3D vector3D = matrixD.Translation;
@@ -134,9 +133,9 @@ namespace avaness.BrowserLCD
             }
             return result;
         }
+
         public static void OnWindowClosed(MyGuiScreenBase source, bool isUnloading)
         {
-
             keyboardScreenOpen = false;
         }
     }

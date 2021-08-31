@@ -15,13 +15,12 @@ namespace avaness.BrowserLCD
         {
             SECEF.log.Log("Added TSS");
             if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
-            {
                 MyTextSurfaceScriptFactory.Instance.RegisterFromAssembly(Assembly.GetExecutingAssembly());
-            }
             SECEF.allowMultiplayer = false;
             MyAPIUtilities.Static.MessageEntered -= MessageHandler;
             MyAPIUtilities.Static.MessageEntered += MessageHandler;
         }
+
         private static void MessageHandler(string message, ref bool sendToOthers)
         {
             if (message == "/secef ihaveabadfeelingaboutthis")

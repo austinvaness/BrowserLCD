@@ -10,16 +10,20 @@ namespace avaness.BrowserLCD
     public class MagicTextbox : MyGuiControlTextbox
     {
         public Vector2 browserId = new Vector2();
+
         public MagicTextbox() : this(null, null, 512, null, 0.8f, MyGuiControlTextboxType.Normal, MyGuiControlTextboxStyleEnum.Default)
         {
         }
+
         public MagicTextbox(Vector2? position = null, string defaultText = null, int maxLength = 512, Vector4? textColor = null, float textScale = 0.8f, MyGuiControlTextboxType type = MyGuiControlTextboxType.Normal, MyGuiControlTextboxStyleEnum visualStyle = MyGuiControlTextboxStyleEnum.Default) : base(position, defaultText, maxLength, textColor, textScale, type, visualStyle)
         {
         }
-        StringBuilder emptyString = new StringBuilder();
+
+        readonly StringBuilder emptyString = new StringBuilder();
+
         public override MyGuiControlBase HandleInput()
         {
-            if (base.HasFocus && SECEF.browsers.ContainsKey(browserId))
+            if (HasFocus && SECEF.browsers.ContainsKey(browserId))
             {
                 var _browser = SECEF.browsers[browserId];
                 foreach (char c in MyInput.Static.TextInput)

@@ -24,9 +24,8 @@ namespace avaness.BrowserLCD
         {
             //SECEF.log.Log("CreateTexture. bm: " + SECEF.videoBitmap + " Size: " + SECEF.videoBitmap.Width + "data: ");
             if (MySession.Static.OnlineMode != MyOnlineModeEnum.OFFLINE && !SECEF.allowMultiplayer)
-            {
                 return true;
-            }
+
             MyEntity m_entity = (MyEntity)AccessTools.Field(typeof(MyRenderComponentScreenAreas), "m_entity").GetValue(__instance);
             //m_entity = m_entity.GetTopMostParent(typeof(MyEntity));
             SECEF.log.Log("got Entity " + m_entity + "  " + m_entity.DisplayNameText);
@@ -56,12 +55,11 @@ namespace avaness.BrowserLCD
             myTerminal.CustomDataChanged -= UpdateCustomData;
             myTerminal.CustomDataChanged += UpdateCustomData;
             if (myTerminal.CustomData.Length > 0)
-            {
                 UpdateCustomData(myTerminal);
-            }
             //MyRenderProxy.CreateGeneratedTexture(__instance.GenerateOffscreenTextureName(m_entity.EntityId, area), (int)SECEF.videoSize.X, (int)SECEF.videoSize.Y, MyGeneratedTextureType.RGBA, 1, data, true);
             return false;
         }
+
         public static void GetBGRValues(Bitmap bmp, ref byte[] rgbValues)
         {
             var rect = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
@@ -76,23 +74,20 @@ namespace avaness.BrowserLCD
             bmp.UnlockBits(bmpData);
             //return rgbValues;
         }
+
         public static void UpdateCustomData(MyTerminalBlock __instance)
         {
             var value = __instance.CustomData;
             var entity = __instance;
             var id = 0;
             if (value == null || value.Length == 0)
-            {
                 return;
-            }
 
             var myId = new Vector2(entity.EntityId, id);
             foreach (var br in SECEF.browsers)
             {
                 if (br.Value.entity.EntityId == entity.EntityId)
-                {
                     br.Value.ProcessCommands(value);
-                }
             }
         }
     }

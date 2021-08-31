@@ -8,42 +8,12 @@ using Sandbox.Game.Entities.Blocks;
 
 namespace avaness.BrowserLCD
 {
-    /*    [HarmonyPatch(typeof(MyRenderComponentScreenAreas))]
-        [HarmonyPatch("RenderSpritesToTexture")]
-        public static class SECEF_Patch
-        {
-            [HarmonyPrefix]
-            public static bool Prefix(int area, ListReader<MySprite> sprites, Vector2I textureSize, Vector2 aspectRatio, VRageMath.Color backgroundColor, byte backgroundAlpha)
-            {
-                SECEF.log.Log("RenderSrpitestoTextture");
-                return true;
-            }
-        }
-        [HarmonyPatch(typeof(MyTextPanelComponent))]
-        [HarmonyPatch("ChangeRenderTexture")]
-        public static class Patch_ChangeRenderTexture
-        {
-            [HarmonyPrefix]
-            public static bool Prefix(object __instance, int area, string path)
-            {
-                return true;
-                var instance = (MyTextPanelComponent)__instance;
-
-                MyEntity m_entity = (MyEntity)AccessTools.Field(typeof(MyTextPanelComponent), "m_block").GetValue(__instance);
-                SECEF.log.Log("Change Render Texture " + path + "  " + m_entity.DisplayNameText);
-                if (!SECEF.browsers.ContainsKey(new Vector2(m_entity.EntityId, area)) && m_entity.DisplayNameText.Contains("[CEF]"))
-                {
-                    instance.Reset();
-                }
-                return true;
-            }
-        }*/
-
     [HarmonyPatch(typeof(MyTextPanelComponent))]
     [HarmonyPatch("EnsureGeneratedTexture")]
     public static class Patch_EnsureGeneratedTexture
     {
         public static Guid guid = new Guid("74DE02B3-27F9-4960-B1C4-27351F2B06D1");
+
         [HarmonyPriority(Priority.Low)]
         [HarmonyPrefix]
         public static bool Prefix(object __instance)
@@ -64,7 +34,7 @@ namespace avaness.BrowserLCD
                     AccessTools.Field(typeof(MyTextPanelComponent), "m_textureGenerated").SetValue(__instance, true);
                     if (m_entity.Storage != null)
                     {
-                        var text = m_entity.Storage.GetValue(guid);
+                        //var text = m_entity.Storage.GetValue(guid);
                         //SECEF.log.Log("text: " + text);
                     }
                     /*if(m_area == 0 && text != null && text.Length>0)

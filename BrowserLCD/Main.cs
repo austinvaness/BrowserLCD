@@ -18,12 +18,12 @@ namespace avaness.BrowserLCD
 {
     public class SECEF : IPlugin
     {
-        private TaskScheduler scheduler;
-        private Thread thread;
+        //private TaskScheduler scheduler;
+        //private Thread thread;
         public static Logger log;
         public static Bitmap videoBitmap = null;
         public static Vector2 videoSize = new Vector2();
-        public static CefSharp.OffScreen.ChromiumWebBrowser _browser;
+        public static ChromiumWebBrowser _browser;
         public static string textureName = null;
         public static Type mgtm;
         public static Type mgt;
@@ -41,6 +41,7 @@ namespace avaness.BrowserLCD
         public static int m_audioSetting = 2;
         public static bool allowMultiplayer = false;
         public static bool clickLog = false;
+
         public static int AudioSetting
         {
             get
@@ -56,14 +57,16 @@ namespace avaness.BrowserLCD
                 }
             }
         } // 0 = off, 1 = global, 2 = local, 3 = unsafe
+
         public static Dictionary<Vector2, Browser> browsers = new Dictionary<Vector2, Browser>();
+
         public void Init(object gameInstance)
         {
             Harmony harmony = new Harmony("avaness.BrowserLCD");
             Logger _log = new Logger();
 
             //harmony = HarmonyInstance.Create("Xo.SECEF");
-            AppDomain currentDomain = AppDomain.CurrentDomain;
+            //AppDomain currentDomain = AppDomain.CurrentDomain;
             //currentDomain.AssemblyResolve += new ResolveEventHandler(LoadFromSameFolder);
 
             log = _log;
@@ -82,16 +85,17 @@ namespace avaness.BrowserLCD
             MethodInfo rut = AccessTools.Method(mgtm, "ResetUserTexture");
 
             var mgit = other.Assembly.GetType("VRage.Render11.Resources.Internal.MyGeneratedTexture");
-            MethodInfo m = AccessTools.Method(SECEF.mgtm, "Reset", new Type[] { mgit, typeof(byte[]), typeof(int) });
+            MethodInfo m = AccessTools.Method(mgtm, "Reset", new Type[] { mgit, typeof(byte[]), typeof(int) });
             TexReset = m;
             harmony.Patch(rut, new HarmonyMethod(AccessTools.Method(typeof(Patch_ResetUserTexture), "Prefix")));
 
-            var tMySourceVoice = typeof(IMyPlatformAudio).Assembly.GetType("VRage.Audio.MySourceVoice");
+            //var tMySourceVoice = typeof(IMyPlatformAudio).Assembly.GetType("VRage.Audio.MySourceVoice");
             //harmony.Patch(AccessTools.Method(tMySourceVoice, "OnStopPlayingBuffered"), new HarmonyMethod(AccessTools.Method(typeof(Patch_OnStopPlayingBuffered), "Prefix")));
 
             log.Log("Init");
             initialized = true;
         }
+
         static Assembly LoadFromSameFolder(object sender, ResolveEventArgs args)
         {
             string folderPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -102,42 +106,42 @@ namespace avaness.BrowserLCD
             Assembly assembly = Assembly.UnsafeLoadFrom(assemblyPath);
             return assembly;
         }
-        private bool scriptRegistered = false;
+
+        //private bool scriptRegistered = false;
+
         public void Update()
         {
             if (!initialized)
-            {
                 return;
-            }
 
             foreach (var b in browsers)
             {
                 var _browser = b.Value;
                 if (_browser.browser.IsBrowserInitialized)
-                {
                     _browser.browser.GetBrowserHost().Invalidate(PaintElementType.View);
-                }
             }
         }
+
         public MyTextSurfaceScriptFactory tssfInstance;
+
         public void Dispose()
         {
             log.Log("Dispose");
         }
+
         public void InitBrowser()
         {
             SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
 
-            scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-            thread = Thread.CurrentThread;
+            //scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            //thread = Thread.CurrentThread;
 
             if (!Cef.IsInitialized)
             {
                 var isDefault = AppDomain.CurrentDomain.IsDefaultAppDomain();
                 if (!isDefault)
-                {
                     throw new Exception(@"Add <add key=""xunit.appDomain"" value=""denied""/> to your app.config to disable appdomains");
-                }
+
                 CefSharpSettings.SubprocessExitIfParentProcessClosed = true;
                 var settings = new CefSettings();
                 settings.EnableAudio();
@@ -149,12 +153,11 @@ namespace avaness.BrowserLCD
                 Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
             }
         }
+
         public static void AddBrowser(Vector2 id, Browser browser)
         {
             if (!browsers.ContainsKey(id))
-            {
                 browsers.Add(id, browser);
-            }
         }
     }
 }

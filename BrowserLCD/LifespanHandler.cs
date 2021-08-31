@@ -9,6 +9,7 @@ namespace avaness.BrowserLCD
             newBrowser = null;
             return true;
         }
+
         bool ILifeSpanHandler.DoClose(IWebBrowser browserControl, IBrowser browser)
         { return false; }
 
