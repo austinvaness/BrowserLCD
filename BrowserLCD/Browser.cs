@@ -12,6 +12,7 @@ using CefSharp.Enums;
 using CefSharp.OffScreen;
 using System.Drawing;
 using VRageRender;
+using CefSharp.Structs;
 
 namespace avaness.BrowserLCD
 {
@@ -25,7 +26,7 @@ namespace avaness.BrowserLCD
         public float audioDistance = 30;
         public bool persist = false;
 
-        public void OnAudioStreamPacket(IWebBrowser chromiumWebBrowser, IBrowser browser, int audioStreamId, IntPtr data, int noOfFrames, long pts)
+        public void OnAudioStreamPacket(IWebBrowser chromiumWebBrowser, IBrowser browser, IntPtr data, int noOfFrames, long pts)
         {
             if (SECEF.AudioSetting < 2 || textureName == null || MyAudio.Static == null || !MyAudio.Static.CanPlay || entity == null || ((MyFunctionalBlock)entity).m_soundEmitter == null || noOfFrames < 2)
                 return;
@@ -154,17 +155,17 @@ namespace avaness.BrowserLCD
                 task.Start();*/
         }
 
-        public void OnAudioStreamStarted(IWebBrowser chromiumWebBrowser, IBrowser browser, int audioStreamId, int channels, ChannelLayout channelLayout, int sampleRate, int framesPerBuffer)
+        public void OnAudioStreamStarted(IWebBrowser chromiumWebBrowser, IBrowser browser, AudioParameters parameters, int channels)
         {
-            this.sampleRate = sampleRate;
+            sampleRate = parameters.SampleRate;
             this.channels = channels;
-            this.channelLayout = channelLayout;
+            channelLayout = parameters.ChannelLayout;
 
             audioStreamStarted = true;
-            SECEF.log.Log("Audio stream started " + sampleRate + " ch: " + channels + " " + channelLayout + " " + framesPerBuffer);
+            SECEF.log.Log("Audio stream started " + sampleRate + " ch: " + channels + " " + channelLayout + " " + parameters.FramesPerBuffer);
         }
 
-        public void OnAudioStreamStopped(IWebBrowser chromiumWebBrowser, IBrowser browser, int audioStreamId)
+        public void OnAudioStreamStopped(IWebBrowser chromiumWebBrowser, IBrowser browser)
         {
             audioStreamStarted = false;
             SECEF.log.Log("Audio stream stopped");
@@ -192,7 +193,7 @@ namespace avaness.BrowserLCD
             videoData = new byte[1024 * 1024 * 4];
             browser = new ChromiumWebBrowser();
             browser.BrowserInitialized += OnInitialized;
-            browser.Size = new Size(width, height);
+            browser.Size = new System.Drawing.Size(width, height);
             browser.Paint += OnPaint;
             browser.LifeSpanHandler = new LifespanHandler();
             browser.AudioHandler = this;
@@ -378,5 +379,18 @@ namespace avaness.BrowserLCD
             if (browser.IsBrowserInitialized)
                 browser.GetBrowserHost().SetAudioMuted(mute);
         }
+
+        public bool GetAudioParameters(IWebBrowser chromiumWebBrowser, IBrowser browser, ref AudioParameters parameters)
+        {
+            return true;
+        }
+
+        public void OnAudioStreamError(IWebBrowser chromiumWebBrowser, IBrowser browser, string errorMessage)
+        {
+            SECEF.log.Log("Audio error: " + errorMessage);
+        }
+
+        public void Dispose()
+        { }
     }
 }
